@@ -1,0 +1,4 @@
+repository "My project (3)/bombsquad-gameproject2@5773924128749@cloud"
+  path "/"
+    br "/main"
+    co "/main"
