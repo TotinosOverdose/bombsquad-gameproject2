@@ -10,33 +10,12 @@ using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
 public class MultitouchDragger : MonoBehaviour {
     Camera cam;
-    [SerializeField] LayerMask groundMask;
     
     Dictionary<Finger, Draggable> activeDrags = new Dictionary<Finger, Draggable>();
 
     void Awake() {
         EnhancedTouchSupport.Enable();
         cam = Camera.main;
-    }
-
-    Draggable TryFindDraggableUnder(Touch touch) {
-        Draggable result = null;
-        var ray = cam.ScreenPointToRay(touch.screenPosition);
-        if (Physics.Raycast(ray, out RaycastHit hit)) {
-            result = hit.collider.GetComponent<Draggable>();
-        }
-        return result;
-    }
-
-    Vector3 GroundPositionUnder(Touch touch) {
-        var ray = cam.ScreenPointToRay(touch.screenPosition);
-        if (Physics.Raycast(ray,
-                            out RaycastHit hit,
-                            Mathf.Infinity,
-                            groundMask)) {
-            return hit.point;
-        }
-        return Vector3.zero; // ew!
     }
 
     void Update() {
