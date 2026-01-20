@@ -1,8 +1,11 @@
 using UnityEngine;
 
-public class BombMover : MonoBehaviour
+public class TypeModifier : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    public bool isPoison;
+
     void Start()
     {
         

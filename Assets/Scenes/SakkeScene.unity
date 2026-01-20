@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 95091656}
   - component: {fileID: 95091655}
   m_Layer: 0
-  m_Name: Spawner (1)
+  m_Name: BottomSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -159,7 +159,7 @@ Transform:
   m_GameObject: {fileID: 95091654}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 5.08, y: 9.500001, z: 0}
+  m_LocalPosition: {x: 0, y: 1.89, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -190,7 +190,7 @@ Transform:
   m_GameObject: {fileID: 279790457}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.36, y: 0.56358, z: -12.83}
+  m_LocalPosition: {x: 3.36, y: 1.66, z: -12.83}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -207,7 +207,7 @@ GameObject:
   - component: {fileID: 315899143}
   - component: {fileID: 315899142}
   m_Layer: 0
-  m_Name: Spawner
+  m_Name: TopSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -236,7 +236,7 @@ Transform:
   m_GameObject: {fileID: 315899141}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -4.86, y: 9.500001, z: 0}
+  m_LocalPosition: {x: 0, y: 9.500001, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -369,7 +369,7 @@ GameObject:
   - component: {fileID: 526858921}
   m_Layer: 6
   m_Name: PoisonCollection
-  m_TagString: Untagged
+  m_TagString: Planter
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -420,7 +420,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9452ae1262a74094f8a68013fbcd1834, type: 2}
+  - {fileID: 2100000, guid: 4459fff084dd84526ab8fd5082d2eacb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -816,7 +816,7 @@ GameObject:
   - component: {fileID: 1004254266}
   m_Layer: 6
   m_Name: GoodCollection
-  m_TagString: Untagged
+  m_TagString: Planter
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -867,7 +867,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9452ae1262a74094f8a68013fbcd1834, type: 2}
+  - {fileID: 2100000, guid: bc6da4580f5514e458fe5def87e138be, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1057,7 +1057,7 @@ GameObject:
   - component: {fileID: 1398427240}
   - component: {fileID: 1398427239}
   m_Layer: 0
-  m_Name: Dragger
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1072,12 +1072,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1398427238}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16d5a93b33d96d04faf6fc3f8fbcafae, type: 3}
+  m_Script: {fileID: 11500000, guid: 5bd52ae3d155c1249974ddee980a3ee9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MultitouchDragger
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!4 &1398427240
 Transform:
   m_ObjectHideFlags: 0
@@ -1205,37 +1202,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1480514048
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1480514049}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1480514049
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1480514048}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.40786237, y: 0.577623, z: 0.57762295, w: -0.40786225}
-  m_LocalPosition: {x: 0.93, y: 1.01, z: -14.59}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -89.972, y: 0, z: 250.452}
 --- !u!1 &1572899041
 GameObject:
   m_ObjectHideFlags: 0
@@ -1261,7 +1227,7 @@ Transform:
   m_GameObject: {fileID: 1572899041}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.77, y: 1.46, z: -13.73}
+  m_LocalPosition: {x: 3.77, y: 8.92, z: -13.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1426,7 +1392,6 @@ SceneRoots:
   - {fileID: 95091656}
   - {fileID: 820099525}
   - {fileID: 612760972}
-  - {fileID: 1480514049}
   - {fileID: 1572899042}
   - {fileID: 279790458}
   - {fileID: 1802488527}
