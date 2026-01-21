@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MushroomController
   mushroomType: 0
-  moveSpeed: 2
+  moveSpeed: 1
   moveDuration: 2
   pauseDuration: 1
   screenPadding: 0.05
@@ -316,6 +316,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 4d037b98c2703214aa5553c69d4b2ff7, type: 3}
   - {fileID: 21300000, guid: c000da83fddfec04987aec7f17c954ae, type: 3}
   lifeIndicatorTransform: {fileID: 6305158094304305163}
+  isErratic: 0
+  erraticSpeedMultiplier: 1.5
+  zigzagFrequency: 10
+  zigzagAmplitude: 0.5
+  originSpawner: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!50 &8412211153237963464
 Rigidbody2D:
   serializedVersion: 5

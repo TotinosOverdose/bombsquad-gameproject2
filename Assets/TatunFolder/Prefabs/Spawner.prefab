@@ -46,7 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpawnerNew
   mushroomTypeAPrefab: {fileID: 6477324192563404373, guid: 7da6b199963dc7249b0a8b1e05fcc118, type: 3}
   mushroomTypeBPrefab: {fileID: 7705061144162066140, guid: 3bf1b1ea436066f48b8481f01d9ed426, type: 3}
-  spawnInterval: 1
-  spawnHeightOffset: 0.5
-  horizontalSpawnRange: 0.7
-  maxMushroomsOnScreen: 30
+  spawnInterval: 3
+  maxMushroomsSpawned: 5

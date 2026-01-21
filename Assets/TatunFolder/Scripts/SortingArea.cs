@@ -28,7 +28,9 @@ public class SortingArea : MonoBehaviour
         {
             spriteRenderer.color = normalColor;
         }
-        gameManager = FindObjectOfType<GameManager>();
+
+        // Prefer singleton instance if available
+        gameManager = GameManager.Instance ?? FindObjectOfType<GameManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -62,37 +64,44 @@ public class SortingArea : MonoBehaviour
 
     private void Update()
     {
-        // Check if a hovered mushroom was just released
-        if (hoveredMushroom != null && !hoveredMushroom.IsDragging)
+        // Check if hovered mushroom still exists and was just released
+        if (hoveredMushroom != null && hoveredMushroom.gameObject != null && !hoveredMushroom.IsDragging)
         {
-            if (hoveredMushroom.GetMushroomType() == acceptedType)
+            // Cache the mushroom type before any operations
+            MushroomType mushroomType = hoveredMushroom.GetMushroomType();
+            bool isCorrectType = mushroomType == acceptedType;
+
+            if (isCorrectType)
             {
                 // Correct placement: keep mushroom in area and stop it
                 hoveredMushroom.PlaceInArea(this);
                 placedMushrooms.Add(hoveredMushroom);
                 onCorrectMushroom?.Invoke(acceptedType);
-                if (gameManager != null)
+
+                // Inform GameManager that a mushroom was placed
+                if (gameManager == null)
+                    gameManager = GameManager.Instance ?? FindObjectOfType<GameManager>();
+
+                if (gameManager != null && hoveredMushroom != null)
                 {
-                    gameManager.OnCorrectMushroom(acceptedType);
+                    gameManager.OnMushroomPlaced(hoveredMushroom);
                 }
             }
             else
             {
-                // Incorrect placement: destroy all mushrooms in this area (and the one just dropped)
-                onIncorrectMushroom?.Invoke();
-
-                // gather all to destroy: include placedMushrooms, any child mushrooms, and the hovered one
+                // Incorrect placement: destroy all mushrooms in this area + the dropped one
                 var toDestroy = new System.Collections.Generic.List<MushroomController>(placedMushrooms);
 
-                // include any children under this area (covers placed items that might not be tracked)
+                // Include any children under this area
                 var childMushrooms = GetComponentsInChildren<MushroomController>(includeInactive: true);
                 foreach (var cm in childMushrooms)
                 {
-                    if (cm != null && !toDestroy.Contains(cm))
+                    if (cm != null && cm.gameObject != null && !toDestroy.Contains(cm))
                         toDestroy.Add(cm);
                 }
 
-                if (hoveredMushroom != null && !toDestroy.Contains(hoveredMushroom))
+                // Add the hovered mushroom
+                if (hoveredMushroom != null && hoveredMushroom.gameObject != null && !toDestroy.Contains(hoveredMushroom))
                     toDestroy.Add(hoveredMushroom);
 
                 int destroyedCount = 0;
@@ -105,16 +114,25 @@ public class SortingArea : MonoBehaviour
                     }
                 }
 
-                // clear tracking list
+                // Clear tracking list
                 placedMushrooms.Clear();
 
-                // Inform GameManager to reduce points for this area
-                if (gameManager != null && destroyedCount > 0)
+                // Inform GameManager to reduce points
+                if (GameManager.Instance != null && destroyedCount > 0)
                 {
-                    gameManager.OnIncorrectPlacement(acceptedType, destroyedCount);
+                    GameManager.Instance.OnIncorrectPlacement(acceptedType, destroyedCount);
                 }
+
+                onIncorrectMushroom?.Invoke();
             }
 
+            // Clear hovered reference and highlight
+            hoveredMushroom = null;
+            ClearHighlight();
+        }
+        else if (hoveredMushroom != null && hoveredMushroom.gameObject == null)
+        {
+            // Mushroom was destroyed externally, just clear the reference
             hoveredMushroom = null;
             ClearHighlight();
         }

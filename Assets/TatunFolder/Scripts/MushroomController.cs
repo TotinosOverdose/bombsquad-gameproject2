@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class MushroomController : MonoBehaviour
 {
@@ -21,13 +24,23 @@ public class MushroomController : MonoBehaviour
     [SerializeField] private Sprite[] lifeIndicators;
     [SerializeField] Transform lifeIndicatorTransform;
 
+    // Erratic movement flags / params (set by spawner)
+    [Header("Erratic Movement")]
+    public bool isErratic = false;
+    public float erraticSpeedMultiplier = 1.5f;
+    public float zigzagFrequency = 10f;
+    public float zigzagAmplitude = 0.5f;
+
+    // Reference to the spawner that created this mushroom (set when spawned)
+    [HideInInspector] public MushroomSpawner originSpawner;
+
     private Vector2 moveDirection;
     private bool isMoving = false;
     private bool isDragging = false;
     private Coroutine moveRoutine;
 
     private Camera mainCamera;
-    private Animator animator;
+    public Animator animator;
     private Rigidbody2D rb;
     private Collider2D myCollider;
     private Vector3 dragOffset;
@@ -35,11 +48,27 @@ public class MushroomController : MonoBehaviour
     private float lifeTimer;
     private GameManager gameManager;
 
+    // Input tracking for multitouch support:
+    // -1 = none, >=0 = finger index (EnhancedTouch Finger.index), -2 = mouse
+    private int activeTouchId = -1;
+
     public bool IsDragging => isDragging;
+
+    private void OnEnable()
+    {
+        // Enable Enhanced Touch support (new Input System)
+        EnhancedTouchSupport.Enable();
+    }
+
+    private void OnDisable()
+    {
+        EnhancedTouchSupport.Disable();
+    }
 
     private void Awake()
     {
-        
+        // Prefer singleton GameManager if available
+        gameManager = GameManager.Instance ?? FindFirstObjectByType<GameManager>();
         mainCamera = Camera.main;
         rb = GetComponent<Rigidbody2D>();
         myCollider = GetComponent<Collider2D>();
@@ -50,16 +79,25 @@ public class MushroomController : MonoBehaviour
         }
         rb.gravityScale = 0;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
     }
 
     void Start()
     {
+        //Check  current game level and adjust move speed
+        if (gameManager != null)
+        {
+            int level = gameManager.currentLevel;
+            moveSpeed += level * 0.2f; // Increase speed per level
+        }
+
         moveRoutine = StartCoroutine(MovementRoutine());
 
         animator = GetComponentInChildren<Animator>();
         lifeTimer = lifeTimeSeconds;
-        gameManager = FindObjectOfType<GameManager>();
+
+        // ensure we have a gameManager reference as fallback
+        if (gameManager == null)
+            gameManager = FindObjectOfType<GameManager>();
     }
 
     void Update()
@@ -77,7 +115,7 @@ public class MushroomController : MonoBehaviour
             }
         }
 
-
+        // Animation updates
         if (isPlaced)
         {
             if (animator != null)
@@ -86,19 +124,26 @@ public class MushroomController : MonoBehaviour
         }
         if (animator != null)
         {
-            if (isMoving)
-            {
-                animator.SetBool("isMoving", true);
-            }
-            else
-            {
-                animator.SetBool("isMoving", false);
-            }
+            animator.SetBool("isMoving", isMoving);
         }
 
         if (!isDragging && isMoving)
         {
-            transform.Translate(moveDirection * moveSpeed * Time.deltaTime, Space.World);
+            float speed = moveSpeed * (isErratic ? erraticSpeedMultiplier : 1f);
+
+            if (!isErratic)
+            {
+                transform.Translate(moveDirection * speed * Time.deltaTime, Space.World);
+            }
+            else
+            {
+                // erratic zig-zag: offset movement perpendicular to direction
+                Vector2 perp = new Vector2(-moveDirection.y, moveDirection.x);
+                float offset = Mathf.Sin(Time.time * zigzagFrequency) * zigzagAmplitude;
+                Vector2 combined = (moveDirection + perp * offset).normalized;
+                transform.Translate(combined * speed * Time.deltaTime, Space.World);
+            }
+
             KeepInsideScreenBounds();
         }
 
@@ -108,16 +153,145 @@ public class MushroomController : MonoBehaviour
             lifeTimer -= Time.deltaTime;
             if (lifeTimer <= 0f)
             {
-                // expired -> notify GameManager (game over) and destroy self
                 if (gameManager != null)
                 {
-                    gameManager.OnMushroomExpired(this);
+                    if (moveRoutine != null)
+                    {
+                        StopCoroutine(moveRoutine);
+                    }
+                    if (lifeIndicatorTransform != null)
+                        lifeIndicatorTransform.gameObject.SetActive(false);
+
+                    // Use singleton instance if available
+                    if (GameManager.Instance != null)
+                        StartCoroutine(GameManager.Instance.OnMushroomExpired(this));
+                    else
+                        StartCoroutine(gameManager.OnMushroomExpired(this));
                 }
-                // explode (destroy)
-                animator.SetTrigger("Explode");
-                Destroy(gameObject);
             }
         }
+
+        // Handle input for touch/mouse (multi-touch supported):
+        HandlePointerInput();
+    }
+
+    private void HandlePointerInput()
+    {
+        // Use Enhanced Touch (supports multi-touch on mobile)
+        var activeTouches = Touch.activeTouches; // EnhancedTouch Touch list
+
+        // ReadOnlyArray<T> is a value type — compare Count instead of null
+        if (activeTouches.Count > 0)
+        {
+            foreach (var t in activeTouches)
+            {
+                Vector2 screenPos = t.screenPosition;
+                Vector3 worldPoint = ScreenToWorldPoint(screenPos);
+
+                var phase = t.phase;
+
+                if (phase == UnityEngine.InputSystem.TouchPhase.Began)
+                {
+                    // only start drag if this touch hits this mushroom
+                    Collider2D hit = Physics2D.OverlapPoint(worldPoint);
+                    if (hit == myCollider && !isPlaced && activeTouchId == -1)
+                    {
+                        // store finger index (EnhancedTouch Finger.index)
+                        StartDragWithId(t.finger.index, worldPoint);
+                    }
+                }
+                else
+                {
+                    if (t.finger.index == activeTouchId)
+                    {
+                        if (phase == UnityEngine.InputSystem.TouchPhase.Moved || phase == UnityEngine.InputSystem.TouchPhase.Stationary)
+                        {
+                            ContinueDragTo(worldPoint);
+                        }
+                        else if (phase == UnityEngine.InputSystem.TouchPhase.Ended || phase == UnityEngine.InputSystem.TouchPhase.Canceled)
+                        {
+                            EndDrag();
+                        }
+                    }
+                }
+            }
+
+            return;
+        }
+
+        // Fallback: mouse (editor / standalone) - single pointer only
+        if (Mouse.current != null)
+        {
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                Vector3 worldPoint = ScreenToWorldPoint(Mouse.current.position.ReadValue());
+                Collider2D hit = Physics2D.OverlapPoint(worldPoint);
+                if (hit == myCollider && !isPlaced && activeTouchId == -1)
+                {
+                    StartDragWithId(-2, worldPoint);
+                }
+            }
+
+            if (activeTouchId == -2)
+            {
+                if (Mouse.current.leftButton.isPressed)
+                {
+                    Vector3 worldPoint = ScreenToWorldPoint(Mouse.current.position.ReadValue());
+                    ContinueDragTo(worldPoint);
+                }
+                else if (Mouse.current.leftButton.wasReleasedThisFrame)
+                {
+                    EndDrag();
+                }
+            }
+        }
+    }
+
+    private Vector3 ScreenToWorldPoint(Vector2 screenPos)
+    {
+        if (mainCamera == null) mainCamera = Camera.main;
+        Vector3 inputPos = new Vector3(screenPos.x, screenPos.y, mainCamera.WorldToScreenPoint(transform.position).z);
+        return mainCamera.ScreenToWorldPoint(inputPos);
+    }
+
+    private void StartDragWithId(int id, Vector3 inputWorldPos)
+    {
+        activeTouchId = id;
+        StartDragging(inputWorldPos);
+    }
+
+    // keep the original StartDragging behavior but accept world position (used by multitouch)
+    private void StartDragging(Vector3 inputWorldPos)
+    {
+        isDragging = true;
+        isMoving = false;
+
+        dragOffset = transform.position - inputWorldPos;
+    }
+
+    // mouse legacy entry points left as no-op to avoid duplicate behavior on some platforms
+    void OnMouseDown() { }
+    void OnMouseDrag() { }
+    void OnMouseUp() { }
+
+    private void ContinueDragTo(Vector3 inputWorldPos)
+    {
+        if (!isDragging) return;
+        transform.position = inputWorldPos + dragOffset;
+    }
+
+    private void EndDrag()
+    {
+        isDragging = false;
+        activeTouchId = -1;
+    }
+
+    private Vector3 GetInputWorldPosition()
+    {
+        // Not used for touch path (kept for compatibility)
+        Vector3 inputPos = UnityEngine.Input.mousePosition;
+        inputPos.z = mainCamera.WorldToScreenPoint(transform.position).z;
+        return mainCamera.ScreenToWorldPoint(inputPos);
     }
 
     IEnumerator MovementRoutine()
@@ -222,47 +396,14 @@ public class MushroomController : MonoBehaviour
         }
     }
 
-    void OnMouseDown()
-    {
-        StartDragging();
-    }
-
-    void OnMouseDrag()
-    {
-        if (isDragging)
-        {
-            Vector3 inputPos = GetInputWorldPosition();
-            transform.position = inputPos + dragOffset;
-        }
-    }
-
-    void OnMouseUp()
-    {
-        StopDragging();
-    }
-
-    private void StartDragging()
-    {
-        isDragging = true;
-        isMoving = false;
-
-        Vector3 inputPos = GetInputWorldPosition();
-        dragOffset = transform.position - inputPos;
-    }
-
-    private void StopDragging()
-    {
-        isDragging = false;
-    }
-
     public void PlaceInArea(SortingArea area)
     {
         if (isPlaced) return;
         isPlaced = true;
         isMoving = false;
         isDragging = false;
+        activeTouchId = -1;
 
-        // stop physics and disable collider so it stays put in the area
         if (rb != null)
         {
             rb.simulated = false;
@@ -273,7 +414,6 @@ public class MushroomController : MonoBehaviour
             myCollider.enabled = false;
         }
 
-        // parent to the area so it follows if area moves and so it's grouped
         transform.SetParent(area.transform, worldPositionStays: true);
 
         // Stop lifetime countdown
@@ -289,30 +429,27 @@ public class MushroomController : MonoBehaviour
         if (animator != null)
             animator.SetBool("isMoving", false);
 
-        lifeIndicatorTransform.gameObject.SetActive(false);
+        if (lifeIndicatorTransform != null)
+            lifeIndicatorTransform.gameObject.SetActive(false);
+
+        // Notify the spawner that this mushroom has been placed (so its per-spawner count is updated)
+        if (originSpawner != null)
+        {
+            originSpawner.NotifyMushroomPlaced(this);
+        }
+
+        // Notify GameManager that this mushroom is placed (so global active count is decremented)
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnMushroomPlaced(this);
+        }
+        else if (gameManager != null)
+        {
+            gameManager.OnMushroomPlaced(this);
+        }
     }
 
     public bool IsPlaced => isPlaced;
-
-    private Vector3 GetInputWorldPosition()
-    {
-        Vector3 inputPos;
-
-
-        inputPos = UnityEngine.Input.mousePosition;
-
-        if (UnityEngine.Input.touchCount > 0)
-        {
-            inputPos = UnityEngine.Input.GetTouch(0).position;
-        }
-        else
-        {
-            inputPos = UnityEngine.Input.mousePosition;
-        }
-
-        inputPos.z = mainCamera.WorldToScreenPoint(transform.position).z;
-        return mainCamera.ScreenToWorldPoint(inputPos);
-    }
 
     public MushroomType GetMushroomType()
     {

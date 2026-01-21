@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using System.Collections;
 
@@ -9,40 +10,88 @@ public class MushroomSpawner : MonoBehaviour
 
     [Header("Spawn Settings")]
     public float spawnInterval = 3.0f;
-    public float spawnHeightOffset = 0.5f; // Distance above top of screen
-    public float horizontalSpawnRange = 0.7f; // 0-1 range of screen width to use
 
     [Header("Game Settings")]
-    public int maxMushroomsOnScreen = 8;
+    public int maxMushroomsSpawned = 15; // interpreted as total number this spawner will create for the level
 
+    // Runtime
     private Camera mainCamera;
-    private int currentMushroomCount = 0;
+    private int currentMushroomCount = 0; // active from this spawner
+    private int spawnedCount = 0;
+    private bool hasFinished = false;
+    private bool isSpawning = false;
+    private Coroutine spawnRoutine;
+
+    // Events / callbacks
+    public System.Action<MushroomController> onMushroomSpawned;
+    public System.Action<MushroomSpawner> onSpawnerFinished;
+
+    private GameManager gameManager;
+    private int gameLevel = 1;
 
     private void Awake()
     {
         mainCamera = Camera.main;
+        gameManager = GameManager.Instance ?? FindObjectOfType<GameManager>();
     }
 
     private void Start()
     {
-        StartCoroutine(SpawnRoutine());
+        // Don't auto-start spawning - wait for GameManager to call StartSpawning()
+    }
+
+    public void SetGameLevel(int level)
+    {
+        gameLevel = level;
+    }
+
+    // Called by GameManager to begin spawning (after level transition)
+    public void StartSpawning()
+    {
+        if (isSpawning) return;
+
+        isSpawning = true;
+        spawnedCount = 0;
+        hasFinished = false;
+
+        if (spawnRoutine != null)
+            StopCoroutine(spawnRoutine);
+
+        spawnRoutine = StartCoroutine(SpawnRoutine());
+    }
+
+    // Called by GameManager to stop spawning (level complete or game over)
+    public void StopSpawning()
+    {
+        isSpawning = false;
+
+        if (spawnRoutine != null)
+        {
+            StopCoroutine(spawnRoutine);
+            spawnRoutine = null;
+        }
     }
 
     private IEnumerator SpawnRoutine()
     {
-        while (true)
+        // Spawn until we have spawned maxMushroomsSpawned total
+        while (spawnedCount < maxMushroomsSpawned && isSpawning)
         {
+            SpawnMushroom();
             yield return new WaitForSeconds(spawnInterval);
-
-            if (currentMushroomCount < maxMushroomsOnScreen)
-            {
-                SpawnMushroom();
-            }
         }
+
+        // finished spawning
+        hasFinished = true;
+        isSpawning = false;
+        onSpawnerFinished?.Invoke(this);
+
+        // GameManager listens to onSpawnerFinished via subscription in InitializeLevel
     }
 
     private void SpawnMushroom()
     {
+        if (mainCamera == null) mainCamera = Camera.main;
         if (mainCamera == null) return;
 
         // Randomly choose mushroom type
@@ -51,26 +100,68 @@ public class MushroomSpawner : MonoBehaviour
 
         if (prefabToSpawn == null)
         {
-            Debug.LogWarning("Mushroom prefab not assigned!");
+            Debug.LogWarning("Mushroom prefab not found!");
             return;
         }
 
-        // Calculate spawn position at top of screen
-        float randomX = Random.Range(0.5f - horizontalSpawnRange / 2f, 0.5f + horizontalSpawnRange / 2f);
-        Vector3 viewportPos = new Vector3(randomX, 1.0f + spawnHeightOffset, 10f);
-        Vector3 spawnPos = mainCamera.ViewportToWorldPoint(viewportPos);
-        spawnPos.z = 0;
+        var spawnPos = transform.position;
 
         // Spawn the mushroom
         GameObject mushroom = Instantiate(prefabToSpawn, spawnPos, Quaternion.identity);
+
+        spawnedCount++;
         currentMushroomCount++;
 
-        // Subscribe to destruction to update count
+        MushroomController mc = mushroom.GetComponent<MushroomController>();
+        if (mc != null)
+        {
+            mc.originSpawner = this;
+        }
+
+        // Notify listeners about spawned mushroom (GameManager subscribes via event in InitializeLevel)
+        onMushroomSpawned?.Invoke(mc);
+
+        // Make sure GameManager knows about this mushroom (use authoritative API)
+        if (GameManager.Instance != null)
+            GameManager.Instance.RegisterMushroom(mc);
+
+        // Attach tracker so spawner knows when its spawned mushroom was destroyed (so active count decreases)
         MushroomTracker tracker = mushroom.AddComponent<MushroomTracker>();
-        tracker.onDestroyed = () => currentMushroomCount--;
+        // capture mc in closure so we can unregister specific mushroom when destroyed
+        tracker.onDestroyed = () =>
+        {
+            currentMushroomCount = Mathf.Max(0, currentMushroomCount - 1);
+            if (GameManager.Instance != null)
+                GameManager.Instance.UnregisterMushroom(mc);
+        };
+
+        // Possibly make this mushroom "erratic" based on level
+        if (mc != null)
+        {
+            float erraticChance = 0f;
+            if (gameLevel >= 3)
+            {
+                erraticChance = Mathf.Clamp01(0.1f + (gameLevel - 3) * 0.05f);
+            }
+
+            bool isErratic = Random.value < erraticChance;
+            mc.isErratic = isErratic;
+
+            if (isErratic)
+            {
+                mc.erraticSpeedMultiplier = 1.5f;
+                mc.zigzagFrequency = 10f;
+                mc.zigzagAmplitude = 0.6f;
+            }
+        }
     }
 
-    // Helper component to track when mushrooms are destroyed
+    // Called when a mushroom from this spawner is placed into a sorting area
+    public void NotifyMushroomPlaced(MushroomController mc)
+    {
+        currentMushroomCount = Mathf.Max(0, currentMushroomCount - 1);
+    }
+
     private class MushroomTracker : MonoBehaviour
     {
         public System.Action onDestroyed;
@@ -80,4 +171,9 @@ public class MushroomSpawner : MonoBehaviour
             onDestroyed?.Invoke();
         }
     }
+
+    // Optional public helpers
+    public bool HasFinished => hasFinished;
+    public int SpawnedCount => spawnedCount;
+    public int CurrentActiveCount => currentMushroomCount;
 }
