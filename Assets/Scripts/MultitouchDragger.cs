@@ -29,6 +29,7 @@ public class MultitouchDragger : MonoBehaviour {
                     if (newDraggable)
                     {
                         activeDrags.Add(touch.finger, newDraggable);
+                        newDraggable.GetComponent<Movement>().StartDrag();
                     }
                 }
             }
@@ -40,7 +41,8 @@ public class MultitouchDragger : MonoBehaviour {
                 }
             }
             else if (touch.ended) {
-                activeDrags[touch.finger].checkIfPlanted();
+                activeDrags[touch.finger].GetComponent<Movement>().StopDrag();
+                activeDrags[touch.finger].GetComponent<Draggable>().CheckIfPlanted();
                 if (activeDrags.ContainsKey(touch.finger)) {
                     activeDrags.Remove(touch.finger);
                 }

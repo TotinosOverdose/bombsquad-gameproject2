@@ -35,7 +35,7 @@ public class Draggable : MonoBehaviour
         }
     }
 
-    public void checkIfPlanted()
+    public void CheckIfPlanted()
     {
         //aaaa
     }
