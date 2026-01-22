@@ -451,7 +451,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
   startButton: {fileID: 1688682883}
-  exitButton: {fileID: 0}
+  exitButton: {fileID: 909953281}
 --- !u!1 &909953279
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,7 +488,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -31.762848, y: 31.762848}
+  m_AnchoredPosition: {x: -31.762817, y: 31.762817}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &909953281
