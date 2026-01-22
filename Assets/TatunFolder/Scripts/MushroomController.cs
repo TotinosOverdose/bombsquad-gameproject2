@@ -460,5 +460,6 @@ public class MushroomController : MonoBehaviour
 public enum MushroomType
 {
     TypeA,
-    TypeB
+    TypeB,
+    TypeC
 }
