@@ -764,7 +764,7 @@ GameObject:
   - component: {fileID: 460902646}
   - component: {fileID: 460902648}
   - component: {fileID: 460902649}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: BrownArea
   m_TagString: Planter
   m_Icon: {fileID: 0}
@@ -2449,7 +2449,7 @@ GameObject:
   - component: {fileID: 1277140593}
   - component: {fileID: 1277140595}
   - component: {fileID: 1277140596}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: RedArea
   m_TagString: Planter
   m_Icon: {fileID: 0}
@@ -3155,6 +3155,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5055203078111339061, guid: ec33e4c9885868248a83300166fd818d, type: 3}
+      propertyPath: evilSpawnChance
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5055203078111339061, guid: ec33e4c9885868248a83300166fd818d, type: 3}
+      propertyPath: mushroomTypeCPrefab
+      value: 
+      objectReference: {fileID: 7705061144162066140, guid: 21ef08aece715fe428e2aedfaa04ba19, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3526,6 +3534,7 @@ MonoBehaviour:
   pauseRestartButton: {fileID: 0}
   pauseMainMenuButton: {fileID: 0}
   hudPanel: {fileID: 1206888623}
+  points: {fileID: 0}
 --- !u!4 &1862934297
 Transform:
   m_ObjectHideFlags: 0
@@ -3908,6 +3917,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5055203078111339061, guid: ec33e4c9885868248a83300166fd818d, type: 3}
+      propertyPath: evilSpawnChance
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5055203078111339061, guid: ec33e4c9885868248a83300166fd818d, type: 3}
+      propertyPath: mushroomTypeCPrefab
+      value: 
+      objectReference: {fileID: 7705061144162066140, guid: 21ef08aece715fe428e2aedfaa04ba19, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

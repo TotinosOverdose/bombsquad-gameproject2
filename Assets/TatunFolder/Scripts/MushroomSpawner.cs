@@ -7,9 +7,13 @@ public class MushroomSpawner : MonoBehaviour
     [Header("Mushroom Prefabs")]
     public GameObject mushroomTypeAPrefab;
     public GameObject mushroomTypeBPrefab;
+    public GameObject mushroomTypeCPrefab; // evil shroom
 
     [Header("Spawn Settings")]
     public float spawnInterval = 3.0f;
+    public float spawnIntervalVariance = 0.5f;
+    [Range(0f, 1f)]
+    public float evilSpawnChance = 0.05f;
 
     [Header("Game Settings")]
     public int maxMushroomsSpawned = 15; // interpreted as total number this spawner will create for the level
@@ -78,7 +82,7 @@ public class MushroomSpawner : MonoBehaviour
         while (spawnedCount < maxMushroomsSpawned && isSpawning)
         {
             SpawnMushroom();
-            yield return new WaitForSeconds(spawnInterval);
+            yield return new WaitForSeconds(spawnInterval + Random.Range(-spawnIntervalVariance, spawnIntervalVariance));
         }
 
         // finished spawning
@@ -95,8 +99,17 @@ public class MushroomSpawner : MonoBehaviour
         if (mainCamera == null) return;
 
         // Randomly choose mushroom type
-        bool spawnTypeA = Random.value > 0.5f;
-        GameObject prefabToSpawn = spawnTypeA ? mushroomTypeAPrefab : mushroomTypeBPrefab;
+        GameObject prefabToSpawn = null;
+        // rare evil shroom
+        if (mushroomTypeCPrefab != null && Random.value < evilSpawnChance)
+        {
+            prefabToSpawn = mushroomTypeCPrefab;
+        }
+        else
+        {
+            bool spawnTypeA = Random.value > 0.5f;
+            prefabToSpawn = spawnTypeA ? mushroomTypeAPrefab : mushroomTypeBPrefab;
+        }
 
         if (prefabToSpawn == null)
         {
@@ -149,9 +162,10 @@ public class MushroomSpawner : MonoBehaviour
 
             if (isErratic)
             {
+                // randomize erratic movement parameters
                 mc.erraticSpeedMultiplier = 1.5f;
-                mc.zigzagFrequency = 10f;
-                mc.zigzagAmplitude = 0.6f;
+                mc.zigzagFrequency = Random.Range(2f, 10f);
+                mc.zigzagAmplitude = Random.Range(0.5f, 3f);
             }
         }
     }

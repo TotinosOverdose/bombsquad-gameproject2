@@ -10,7 +10,7 @@ public class MushroomController : MonoBehaviour
     public MushroomType mushroomType;
 
     [Header("Movement Settings")]
-    public float moveSpeed = 2.0f;
+    public float moveSpeed = 1.0f;
     public float moveDuration = 2.0f;
     public float pauseDuration = 1.0f;
     public float screenPadding = 0.1f;
@@ -28,7 +28,7 @@ public class MushroomController : MonoBehaviour
     [Header("Erratic Movement")]
     public bool isErratic = false;
     public float erraticSpeedMultiplier = 1.5f;
-    public float zigzagFrequency = 10f;
+    public float zigzagFrequency = 1f;
     public float zigzagAmplitude = 0.5f;
 
     // Reference to the spawner that created this mushroom (set when spawned)
@@ -138,7 +138,6 @@ public class MushroomController : MonoBehaviour
             }
             else
             {
-                // erratic zig-zag: offset movement perpendicular to direction
                 Vector2 perp = new Vector2(-moveDirection.y, moveDirection.x);
                 float offset = Mathf.Sin(Time.time * zigzagFrequency) * zigzagAmplitude;
                 Vector2 combined = (moveDirection + perp * offset).normalized;

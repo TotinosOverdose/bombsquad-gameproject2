@@ -292,6 +292,58 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
+    public void OnEvilShroomFlicked()
+    {
+        totalScore += mushroomScore;
+        totalScore = Mathf.Max(0, totalScore);
+        UpdateUI();
+        Debug.Log("Evil shroom flicked off-screen: +" + (mushroomScore));
+    }
+
+    public void TriggerEvilShroomExpired()
+    {
+        // start coroutine on the GameManager instance so it can manage UI / timescale reliably
+        if (!gameIsOver)
+        {
+            StartCoroutine(OnEvilShroomExpiredCoroutine());
+        }
+    }
+
+    // Coroutine that performs the game-over flow caused by an EvilShroom exploding.
+    private IEnumerator OnEvilShroomExpiredCoroutine()
+    {
+        if (gameIsOver) yield break;
+        gameIsOver = true;
+
+        foreach (var spawner in spawners)
+        {
+            if (spawner != null)
+                spawner.StopSpawning();
+        }
+
+        // Wait in real time so this runs even if Time.timeScale is manipulated elsewhere
+        yield return new WaitForSecondsRealtime(1.2f);
+
+        SaveHighScoreForLevel(currentLevel);
+
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.SaveHighScore(totalScore);
+            SaveManager.Instance.SaveHighestLevel(currentLevel);
+        }
+
+        Time.timeScale = 0f;
+        Debug.Log("Evil shroom exploded! Game Over.");
+
+        if (uiManager != null)
+        {
+            int highScore = SaveManager.Instance != null ? SaveManager.Instance.GetHighScore() : 0;
+            uiManager.ShowGameOver(totalScore, highScore, currentLevel);
+        }
+
+        yield return null;
+    }
+
     private void UpdateUI()
     {
         if (scoreText != null)

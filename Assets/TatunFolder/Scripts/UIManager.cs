@@ -27,6 +27,7 @@ public class UIManager : MonoBehaviour
 
     [Header("HUD")]
     public GameObject hudPanel;
+    public TextMeshProUGUI points;
 
     private GameManager gameManager;
     private bool isPaused = false;
