@@ -102,7 +102,6 @@ public class UIManager : MonoBehaviour
             levelTransitionPanel.SetActive(true);
             levelTransitionText.text = $"LEVEL {level}";
 
-            // Optional: Add animation here (scale, fade, etc.)
             if (levelTransitionPanel.TryGetComponent<CanvasGroup>(out var canvasGroup))
             {
                 // Fade in
@@ -173,7 +172,6 @@ public class UIManager : MonoBehaviour
     public void LoadMainMenu()
     {
         Time.timeScale = 1f;
-        // Change "MainMenu" to your actual main menu scene name
         SceneManager.LoadScene("MainMenu");
     }
 }

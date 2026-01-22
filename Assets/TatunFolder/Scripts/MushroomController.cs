@@ -83,11 +83,12 @@ public class MushroomController : MonoBehaviour
 
     void Start()
     {
-        //Check  current game level and adjust move speed
+        //Check  current game level and adjust move speed and move duration
         if (gameManager != null)
         {
             int level = gameManager.currentLevel;
             moveSpeed += level * 0.2f; // Increase speed per level
+            moveDuration += level * 0.2f;
         }
 
         moveRoutine = StartCoroutine(MovementRoutine());
