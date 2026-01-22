@@ -9,13 +9,15 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    Camera mainCamera;
+
     [Header("UI References")]
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI levelText;
     public TextMeshProUGUI typeAScoreText;
     public TextMeshProUGUI typeBScoreText;
 
-    [SerializeField] int mushroomScore = 10;
+    public int mushroomScore = 10;
 
     private int totalScore = 0;
     private int typeAScore = 0;
@@ -60,6 +62,8 @@ public class GameManager : MonoBehaviour
             GameObject sm = new GameObject("SaveManager");
             sm.AddComponent<SaveManager>();
         }
+
+        mainCamera = Camera.main;
     }
 
     private void Start()
@@ -346,17 +350,20 @@ public class GameManager : MonoBehaviour
 
     private void UpdateUI()
     {
+        string labelHex = ColorUtility.ToHtmlStringRGB(Color.gold);
+        string valueHex = ColorUtility.ToHtmlStringRGB(Color.goldenRod);
+
         if (scoreText != null)
-            scoreText.text = $"Score: {totalScore}";
+            scoreText.text = $"<color=#{labelHex}>Score:</color> <color=#{valueHex}>{totalScore}</color>";
 
         if (levelText != null)
-            levelText.text = $"Level: {currentLevel}";
+            levelText.text = $"<color=#{labelHex}>Level:</color> <color=#{valueHex}>{currentLevel}</color>";
 
-        if (typeAScoreText != null)
-            typeAScoreText.text = $"Type A: {typeAScore}";
+        //if (typeAScoreText != null)
+        //    typeAScoreText.text = $"Type A: {typeAScore}";
 
-        if (typeBScoreText != null)
-            typeBScoreText.text = $"Type B: {typeBScore}";
+        //if (typeBScoreText != null)
+        //    typeBScoreText.text = $"Type B: {typeBScore}";
     }
 
     private void UpdateActiveCountUIIfNeeded()
@@ -381,4 +388,5 @@ public class GameManager : MonoBehaviour
     // Public getters for UI
     public int GetTotalScore() => totalScore;
     public int GetCurrentLevel() => currentLevel;
+    public int MushroomPointValue => mushroomScore;
 }

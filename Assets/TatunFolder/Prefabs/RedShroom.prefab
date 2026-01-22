@@ -80,7 +80,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: -9206757755874781618, guid: d68f2b03b9d03d540abfaf5078caecc5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -319,7 +319,6 @@ MonoBehaviour:
   isErratic: 0
   erraticSpeedMultiplier: 1.5
   zigzagFrequency: 10
-  maxzigzagFrequency: 10
   zigzagAmplitude: 2
   originSpawner: {fileID: 0}
   animator: {fileID: 0}

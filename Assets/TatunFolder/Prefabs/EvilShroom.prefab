@@ -80,10 +80,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 3
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -9206757755874781618, guid: d68f2b03b9d03d540abfaf5078caecc5, type: 3}
-  m_Color: {r: 0.62231874, g: 1, b: 0, a: 1}
+  m_Sprite: {fileID: 3092655970925733709, guid: bc3b7f25f7c6a9c4db227974251d3a3c, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -102,7 +102,7 @@ Animator:
   m_GameObject: {fileID: 820362623152106491}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 27b56bb48e87fc247953f6e92fa78242, type: 2}
+  m_Controller: {fileID: 9100000, guid: 38d50bedad92a3f4abe073158116d5e9, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -326,15 +326,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b45c12b9bd69eab418092dba0453bea4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EvilShroomController
-  moveSpeed: 1.2
+  moveSpeed: 2
   moveDuration: 2
   pauseDuration: 1
   screenPadding: 0.05
   isErratic: 1
   erraticSpeedMultiplier: 1.5
   zigzagFrequency: 2
-  zigzagAmplitude: 0.5
+  zigzagAmplitude: 5
   lifeTimeSeconds: 8
-  flickVelocityThreshold: 1
-  flickForceMultiplier: 5
+  flickVelocityThreshold: 10
+  flickForceMultiplier: 0.5
   offscreenMargin: 0.02
+  avoidanceCheckDistance: 1.5
+  sortingAreaLayer:
+    serializedVersion: 2
+    m_Bits: 128

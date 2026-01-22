@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+using UnityEngine.UIElements;
 
 public class EvilShroomController : MonoBehaviour
 {
@@ -25,6 +26,11 @@ public class EvilShroomController : MonoBehaviour
     public float flickForceMultiplier = 1.0f;
     public float offscreenMargin = 0.02f; // viewport margin for off-screen detection
 
+    [Header("Avoidance Settings")]
+    public float avoidanceCheckDistance = 1.5f;
+    public LayerMask sortingAreaLayer;
+
+    private CameraController cameraController;
     private Camera mainCamera;
     private Rigidbody2D rb;
     private Animator animator;
@@ -59,7 +65,6 @@ public class EvilShroomController : MonoBehaviour
 
     private void Awake()
     {
-        mainCamera = Camera.main;
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponentInChildren<Animator>();
 
@@ -71,6 +76,9 @@ public class EvilShroomController : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         lifeTimer = lifeTimeSeconds;
+
+        mainCamera = Camera.main;
+        cameraController = mainCamera.GetComponent<CameraController>();
     }
 
     private void Start()
@@ -105,6 +113,7 @@ public class EvilShroomController : MonoBehaviour
         {
             // move without physics simulation (consistent across platforms)
             transform.Translate((Vector3)flingVelocity * Time.deltaTime, Space.World);
+            transform.Rotate(0f, 0f, 360f * Time.deltaTime * 2); // simple rotation for effect
 
             if (IsOffScreen())
             {
@@ -264,7 +273,6 @@ public class EvilShroomController : MonoBehaviour
     {
         if (!isDragging) return;
 
-        // Use the most recent sampled velocity as release velocity
         Vector2 releaseVelocity = lastSampleVelocity;
 
         isDragging = false;
@@ -272,8 +280,12 @@ public class EvilShroomController : MonoBehaviour
 
         if (releaseVelocity.magnitude >= flickVelocityThreshold)
         {
-            // mark as flicked and move deterministically
             hasBeenFlicked = true;
+            animator.SetTrigger("Shocked");
+            Vector3 spawnPos = transform.position;
+            int pts = 10;
+
+            ScorePopupManager.Instance.ShowAtWorldPosition(spawnPos, $"+{pts}", Color.white, 0.5f, 0.9f);
 
             // compute fling velocity (no physics simulation)
             flingVelocity = releaseVelocity * flickForceMultiplier;
@@ -285,6 +297,11 @@ public class EvilShroomController : MonoBehaviour
             // disable collider/other interactions if needed
             Collider2D col = GetComponent<Collider2D>();
             if (col != null) col.enabled = false;
+            if (cameraController.slowMoActive == false)
+            {
+                cameraController.StartCoroutine(cameraController.SlowMoAndZoom(transform, 0.5f, 1.5f, 0.18f));
+            }
+                
         }
         else
         {
@@ -323,28 +340,40 @@ public class EvilShroomController : MonoBehaviour
 
     private Vector2 GetSafeDirection()
     {
-        const int maxAttempts = 20;
+        const int maxAttempts = 30;
+
         for (int i = 0; i < maxAttempts; i++)
         {
             Vector2 candidate = Random.insideUnitCircle.normalized;
-            Vector2 checkPos = (Vector2)transform.position + candidate * Mathf.Max(1f, moveSpeed * moveDuration);
+            Vector2 checkPos = (Vector2)transform.position + candidate * avoidanceCheckDistance;
 
+            // Check if direction leads off-screen
             if (mainCamera != null)
             {
                 Vector3 vp = mainCamera.WorldToViewportPoint(checkPos);
-                if (vp.x < screenPadding || vp.x > 1f - screenPadding || vp.y < screenPadding || vp.y > 1f - screenPadding)
+                if (vp.x < screenPadding || vp.x > 1f - screenPadding ||
+                    vp.y < screenPadding || vp.y > 1f - screenPadding)
+                {
                     continue;
+                }
             }
 
-            return candidate;
+            // Check if direction leads into sorting area
+            Collider2D hit = Physics2D.OverlapCircle(checkPos, 0.3f, sortingAreaLayer);
+            if (hit == null)
+            {
+                return candidate;
+            }
         }
 
+        // Fallback: move toward center of screen
         if (mainCamera != null)
         {
-            Vector3 centerWorld = mainCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, Mathf.Abs(mainCamera.transform.position.z - transform.position.z)));
+            Vector3 centerWorld = mainCamera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 10f));
             centerWorld.z = transform.position.z;
             Vector2 toCenter = ((Vector2)centerWorld - (Vector2)transform.position).normalized;
-            if (toCenter.sqrMagnitude > 0.001f) return toCenter;
+            if (toCenter.sqrMagnitude > 0.001f)
+                return toCenter;
         }
 
         return Random.insideUnitCircle.normalized;
