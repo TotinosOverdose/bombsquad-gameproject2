@@ -15,6 +15,10 @@ public class SortingArea : MonoBehaviour
     public Color incorrectColor = Color.red;
     public Color normalColor = Color.white;
 
+    [Header("Sorting (placed mushrooms)")]
+    public int baseSortingOrder = 0;
+    public int sortingRange = 100;
+
     [Header("Events")]
     public UnityEvent<MushroomType> onCorrectMushroom;
     public UnityEvent onIncorrectMushroom;
@@ -197,5 +201,19 @@ public class SortingArea : MonoBehaviour
             spriteRenderer.color = normalColor;
             isHighlighted = false;
         }
+    }
+
+    public int GetSortingOrderAtPosition(Vector3 worldPos)
+    {
+        var col = GetComponent<Collider2D>();
+        if (col == null) return baseSortingOrder;
+
+        Bounds b = col.bounds;
+        // map worldPos.y to 0..1 from top to bottom (so top => 0, bottom => 1)
+        float t = (b.size.y > 0f) ? Mathf.InverseLerp(b.max.y, b.min.y, worldPos.y) : 0.5f;
+        // clamp then convert to an int order inside the range
+        t = Mathf.Clamp01(t);
+        int order = baseSortingOrder + Mathf.RoundToInt(t * sortingRange);
+        return order;
     }
 }
