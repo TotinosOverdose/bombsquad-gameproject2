@@ -21,7 +21,6 @@ public class MultitouchDragger : MonoBehaviour {
     void Update() {
         foreach (var touch in Touch.activeTouches) {
             if (touch.began) { // same as touch.phase == TouchPhase.Began
-                print("Touching");
                 //var newDraggable = TryFindDraggableUnder(touch);
                 var point = cam.ScreenToWorldPoint(touch.screenPosition);
                 var collider = Physics2D.OverlapPoint(point); // TODO: layermask
@@ -30,6 +29,7 @@ public class MultitouchDragger : MonoBehaviour {
                     if (newDraggable)
                     {
                         activeDrags.Add(touch.finger, newDraggable);
+                        newDraggable.GetComponent<Movement>().StartDrag();
                     }
                 }
             }
@@ -41,14 +41,12 @@ public class MultitouchDragger : MonoBehaviour {
                 }
             }
             else if (touch.ended) {
+                activeDrags[touch.finger].GetComponent<Movement>().StopDrag();
+                activeDrags[touch.finger].GetComponent<Draggable>().CheckIfPlanted();
                 if (activeDrags.ContainsKey(touch.finger)) {
                     activeDrags.Remove(touch.finger);
                 }
             }
         }
-        // if (Mouse.current.leftButton.wasPressedThisFrame) {
-        //     print("foo");
-        //     
-        // }
     }
 }
