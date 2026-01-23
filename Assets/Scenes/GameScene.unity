@@ -4223,6 +4223,58 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   m_Source: {fileID: 1851875146}
   themeSong: {fileID: 8300000, guid: 846086b5c1d2eb449a96599e37ef9a7a, type: 3}
+  pitchCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.20199174
+      value: 0.052751105
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.61228096
+      value: 0.05549419
+      inSlope: 0.0089784125
+      outSlope: 0.0089784125
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.5360952
+    - serializedVersion: 3
+      time: 0.80723983
+      value: 0.49979883
+      inSlope: 1.6704143
+      outSlope: 1.6704143
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.94987625
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  basePitch: 1
 --- !u!1 &1862934295
 GameObject:
   m_ObjectHideFlags: 0

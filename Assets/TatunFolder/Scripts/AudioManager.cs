@@ -6,10 +6,24 @@ public class AudioManager : MonoBehaviour
     [SerializeField] AudioSource m_Source;
     [SerializeField] AudioClip themeSong;
 
+    [Header("Pitch Shift (use the curve to design how pitch changes over normalized time)")]
+    [Tooltip("X-axis = normalized time (0..1), Y-axis = pitch value applied to the AudioSource.")]
+    public AnimationCurve pitchCurve = new AnimationCurve(
+        new Keyframe(0f, 1f),
+        new Keyframe(0.5f, 0.8f),
+        new Keyframe(1f, 1f)
+    );
+
+    [Tooltip("Base pitch multiplier applied to the evaluated curve value.")]
+    public float basePitch = 1f;
+
+    private Coroutine pitchCoroutine;
+
     private void Start()
     {
         PlayThemeSong();
     }
+
     void PlayThemeSong()
     {
         if (m_Source != null && themeSong != null)
@@ -22,38 +36,47 @@ public class AudioManager : MonoBehaviour
 
     public void StartAudioPitchShift(float duration)
     {
-        // Pitch shift from 1.0 to 0.8 over the specified duration
-        StartCoroutine(PitchShiftCoroutine(1.0f, 0.1f, duration));
+        if (m_Source == null || duration <= 0f) return;
+
+        // restart any existing shift
+        if (pitchCoroutine != null)
+            StopCoroutine(pitchCoroutine);
+
+        pitchCoroutine = StartCoroutine(PitchShiftCoroutine(duration));
     }
 
-    private IEnumerator PitchShiftCoroutine(float startPitch, float endPitch, float duration)
+    private IEnumerator PitchShiftCoroutine(float duration)
     {
-        Debug.Log("Starting pitch shift coroutine");
         float elapsed = 0f;
-        float slowingDuration = duration / 2f;
-        // First half of duration pitch down, second half pitch back up
+
+        // guard: if no curve, behave as simple lerp
+        bool hasCurve = pitchCurve != null && pitchCurve.length > 0;
+
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            if (elapsed <= slowingDuration)
-            {
-                // Pitch down
-                m_Source.pitch = Mathf.Lerp(startPitch, endPitch, elapsed / slowingDuration);
-            }
-            else
-            {
-                // Pitch back up
-                m_Source.pitch = Mathf.Lerp(endPitch, startPitch, (elapsed - slowingDuration) / slowingDuration);
-            }
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            float evaluated = hasCurve ? pitchCurve.Evaluate(t) : 1f;
+            m_Source.pitch = evaluated * basePitch;
+
             yield return null;
         }
-        m_Source.pitch = 1.0f; // Ensure pitch resets to normal at the end
+
+        // ensure reset to base pitch
+        m_Source.pitch = basePitch;
+        pitchCoroutine = null;
     }
 
     public void StopAudioPitchShift()
     {
-        // Stop any ongoing pitch shift and reset pitch to normal
-        StopAllCoroutines();
-        m_Source.pitch = 1.0f;
+        if (pitchCoroutine != null)
+        {
+            StopCoroutine(pitchCoroutine);
+            pitchCoroutine = null;
+        }
+
+        if (m_Source != null)
+            m_Source.pitch = basePitch;
     }
 }
