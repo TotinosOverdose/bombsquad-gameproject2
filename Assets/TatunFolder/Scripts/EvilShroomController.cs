@@ -30,6 +30,10 @@ public class EvilShroomController : MonoBehaviour
     public float avoidanceCheckDistance = 1.5f;
     public LayerMask sortingAreaLayer;
 
+    [Header("Input")]
+    [Tooltip("Only colliders on this layer mask will be considered for player touch/mouse input.")]
+    public LayerMask touchableLayer;
+
     private CameraController cameraController;
     private Camera mainCamera;
     private Rigidbody2D rb;
@@ -79,6 +83,10 @@ public class EvilShroomController : MonoBehaviour
 
         mainCamera = Camera.main;
         cameraController = mainCamera.GetComponent<CameraController>();
+
+        // If no mask assigned in inspector, try to use layer named "Touchable"
+        if (touchableLayer.value == 0)
+            touchableLayer = LayerMask.GetMask("Touchable");
     }
 
     private void Start()
@@ -104,8 +112,11 @@ public class EvilShroomController : MonoBehaviour
                 Vector2 combined = (moveDirection + perp * offset).normalized;
                 transform.Translate(combined * speed * Time.deltaTime, Space.World);
             }
+            if (!cameraController.slowMoActive)
+            {
+                KeepInsideScreenBounds();
+            }
 
-            KeepInsideScreenBounds();
         }
 
         // If it has been flicked, move it along the fling vector (deterministic)
@@ -177,7 +188,8 @@ public class EvilShroomController : MonoBehaviour
 
                 if (phase == UnityEngine.InputSystem.TouchPhase.Began)
                 {
-                    Collider2D hit = Physics2D.OverlapPoint(worldPoint);
+                    // only consider hits on the touchableLayer
+                    Collider2D hit = Physics2D.OverlapPoint((Vector2)worldPoint, touchableLayer);
                     if (hit != null && hit.gameObject == gameObject && !hasBeenFlicked && activeTouchId == -1)
                     {
                         StartDragWithId(t.finger.index, worldPoint);
@@ -207,7 +219,7 @@ public class EvilShroomController : MonoBehaviour
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
                 Vector3 worldPoint = ScreenToWorldPoint(Mouse.current.position.ReadValue());
-                Collider2D hit = Physics2D.OverlapPoint(worldPoint);
+                Collider2D hit = Physics2D.OverlapPoint((Vector2)worldPoint, touchableLayer);
                 if (hit != null && hit.gameObject == gameObject && !hasBeenFlicked && activeTouchId == -1)
                 {
                     StartDragWithId(-2, worldPoint);
@@ -301,7 +313,7 @@ public class EvilShroomController : MonoBehaviour
             {
                 cameraController.StartCoroutine(cameraController.SlowMoAndZoom(transform, 0.5f, 1.5f, 0.18f));
             }
-                
+
         }
         else
         {

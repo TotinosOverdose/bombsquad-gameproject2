@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
@@ -24,15 +25,21 @@ public class MushroomController : MonoBehaviour
     [SerializeField] private Sprite[] lifeIndicators;
     [SerializeField] Transform lifeIndicatorTransform;
 
-    // Erratic movement flags / params (set by spawner)
     [Header("Erratic Movement")]
     public bool isErratic = false;
     public float erraticSpeedMultiplier = 1.5f;
     public float zigzagFrequency = 1f;
     public float zigzagAmplitude = 0.5f;
 
-    // Reference to the spawner that created this mushroom (set when spawned)
+    [Header("Placed Behavior")]
+    public float placedWanderSpeed = 0.3f;
+    public Vector2 placedWanderPauseRange = new Vector2(1.0f, 2.0f);
+
     [HideInInspector] public MushroomSpawner originSpawner;
+
+    [Header("Input")]
+    [Tooltip("Only colliders on this layer mask will be considered for player touch/mouse input.")]
+    public LayerMask touchableLayer;
 
     private Vector2 moveDirection;
     private bool isMoving = false;
@@ -40,6 +47,7 @@ public class MushroomController : MonoBehaviour
     private Coroutine moveRoutine;
 
     private Camera mainCamera;
+    private CameraController cameraController;
     public Animator animator;
     private Rigidbody2D rb;
     private Collider2D myCollider;
@@ -47,16 +55,21 @@ public class MushroomController : MonoBehaviour
     private bool isPlaced = false;
     private float lifeTimer;
     private GameManager gameManager;
+    private SpriteRenderer[] spriteRenderers;
 
     // Input tracking for multitouch support:
     // -1 = none, >=0 = finger index (EnhancedTouch Finger.index), -2 = mouse
     private int activeTouchId = -1;
 
+    // Coroutine used for wandering while placed
+    private Coroutine placedWanderRoutine;
+
+
+
     public bool IsDragging => isDragging;
 
     private void OnEnable()
     {
-        // Enable Enhanced Touch support (new Input System)
         EnhancedTouchSupport.Enable();
     }
 
@@ -67,11 +80,12 @@ public class MushroomController : MonoBehaviour
 
     private void Awake()
     {
-        // Prefer singleton GameManager if available
         gameManager = GameManager.Instance ?? FindFirstObjectByType<GameManager>();
         mainCamera = Camera.main;
+        cameraController = mainCamera.GetComponent<CameraController>();
         rb = GetComponent<Rigidbody2D>();
         myCollider = GetComponent<Collider2D>();
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
 
         if (rb == null)
         {
@@ -79,6 +93,10 @@ public class MushroomController : MonoBehaviour
         }
         rb.gravityScale = 0;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        // If no mask assigned in inspector, try to use layer named "Touchable"
+        if (touchableLayer.value == 0)
+            touchableLayer = LayerMask.GetMask("Touchable");
     }
 
     void Start()
@@ -121,6 +139,7 @@ public class MushroomController : MonoBehaviour
         {
             if (animator != null)
                 animator.SetBool("isMoving", false);
+
             return;
         }
         if (animator != null)
@@ -143,8 +162,11 @@ public class MushroomController : MonoBehaviour
                 Vector2 combined = (moveDirection + perp * offset).normalized;
                 transform.Translate(combined * speed * Time.deltaTime, Space.World);
             }
-
-            KeepInsideScreenBounds();
+            if (!cameraController.slowMoActive)
+            {
+                KeepInsideScreenBounds();
+            }
+            
         }
 
         // Lifetime countdown when not placed
@@ -192,8 +214,8 @@ public class MushroomController : MonoBehaviour
 
                 if (phase == UnityEngine.InputSystem.TouchPhase.Began)
                 {
-                    // only start drag if this touch hits this mushroom
-                    Collider2D hit = Physics2D.OverlapPoint(worldPoint);
+                    // only start drag if this touch hits this mushroom AND the hit collider is on the touchable layer
+                    Collider2D hit = Physics2D.OverlapPoint((Vector2)worldPoint, touchableLayer);
                     if (hit == myCollider && !isPlaced && activeTouchId == -1)
                     {
                         // store finger index (EnhancedTouch Finger.index)
@@ -225,7 +247,7 @@ public class MushroomController : MonoBehaviour
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
                 Vector3 worldPoint = ScreenToWorldPoint(Mouse.current.position.ReadValue());
-                Collider2D hit = Physics2D.OverlapPoint(worldPoint);
+                Collider2D hit = Physics2D.OverlapPoint((Vector2)worldPoint, touchableLayer);
                 if (hit == myCollider && !isPlaced && activeTouchId == -1)
                 {
                     StartDragWithId(-2, worldPoint);
@@ -447,6 +469,124 @@ public class MushroomController : MonoBehaviour
         {
             gameManager.OnMushroomPlaced(this);
         }
+
+        // Apply sorting order based on area
+        if (area != null)
+        {
+            int order = area.GetSortingOrderAtPosition(transform.position);
+            ApplySortingOrderToRenderers(order);
+        }
+
+        // Start wandering aroud in placed area
+        if (placedWanderRoutine != null) StopCoroutine(placedWanderRoutine);
+        placedWanderRoutine = StartCoroutine(WanderInsideArea(area));
+    }
+
+    private IEnumerator WanderInsideArea(SortingArea area)
+    {
+        if (area == null) yield break;
+
+        Collider2D areaCollider = area.GetComponent<Collider2D>();
+        while (isPlaced)
+        {
+            Vector3 start = transform.position;
+            Vector3 target = GetRandomPointInArea(areaCollider, area.transform);
+            float distance = Vector3.Distance(start, target);
+            float travelTime = Mathf.Max(0.1f, distance / Mathf.Max(0.01f, placedWanderSpeed));
+            float elapsed = 0f;
+
+            // smooth movement
+            while (elapsed < travelTime && isPlaced)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / travelTime));
+                transform.position = Vector3.Lerp(start, target, t);
+                if (area != null)
+                {
+                    int order = area.GetSortingOrderAtPosition(transform.position);
+                    ApplySortingOrderToRenderers(order);
+                }
+                yield return null;
+            }
+
+            // small random pause
+            float pause = Random.Range(placedWanderPauseRange.x, placedWanderPauseRange.y);
+            float wait = 0f;
+            while (wait < pause && isPlaced)
+            {
+                wait += Time.deltaTime;
+                yield return null;
+            }
+        }
+    }
+
+    private void ApplySortingOrderToRenderers(int order)
+    {
+        if (spriteRenderers == null) return;
+        for (int i = 0; i < spriteRenderers.Length; i++)
+        {
+            if (spriteRenderers[i] != null)
+                spriteRenderers[i].sortingOrder = order;
+        }
+    }
+
+    private Vector3 GetRandomPointInArea(Collider2D areaCollider, Transform areaTransform)
+    {
+        if (areaCollider == null)
+        {
+            // fallback: small jitter around area's pivot
+            return areaTransform != null ? areaTransform.position + (Vector3)(Random.insideUnitCircle * 0.3f) : transform.position;
+        }
+
+        // BoxCollider2D - sample inside an inset box so mushrooms visually stay inside.
+        // Keep more inset on Y than X to avoid appearing to cross the top/bottom edges in 2D view.
+        var box = areaCollider as BoxCollider2D;
+        if (box != null)
+        {
+            Bounds b = box.bounds; // world-space bounds already account for scale/rotation
+            Vector3 size = b.size;
+
+            // scale factors to keep inside: 90% width, 80% height (more inset on Y)
+            const float keepScaleX = 0.90f;
+            const float keepScaleY = 0.80f;
+
+            // compute margin (half of the removed portion)
+            float marginX = Mathf.Max(0f, (1f - keepScaleX) * 0.5f * size.x);
+            float marginY = Mathf.Max(0f, (1f - keepScaleY) * 0.5f * size.y);
+
+            Vector3 min = b.min + new Vector3(marginX, marginY, 0f);
+            Vector3 max = b.max - new Vector3(marginX, marginY, 0f);
+
+            // safety clamp for very small boxes
+            if (max.x < min.x) max.x = min.x;
+            if (max.y < min.y) max.y = min.y;
+
+            float x = Random.Range(min.x, max.x);
+            float y = Random.Range(min.y, max.y);
+            return new Vector3(x, y, transform.position.z);
+        }
+
+        // CircleCollider2D - sample inside slightly reduced radius for visual padding
+        var circle = areaCollider as CircleCollider2D;
+        if (circle != null)
+        {
+            Vector2 center = circle.bounds.center;
+            float worldRadius = circle.radius * Mathf.Max(areaTransform.lossyScale.x, areaTransform.lossyScale.y);
+            // reduce radius slightly so mushrooms don't hit the visual rim
+            float keepRadius = Mathf.Max(0f, worldRadius * 0.85f);
+            Vector2 p = Random.insideUnitCircle * keepRadius + (Vector2)center;
+            return new Vector3(p.x, p.y, transform.position.z);
+        }
+
+        // Generic collider: use bounds as approximation with a small inset
+        Bounds bounds = areaCollider.bounds;
+        Vector3 inset = bounds.size * 0.08f; // keep ~84% area
+        Vector3 gmin = bounds.min + inset * 0.5f;
+        Vector3 gmax = bounds.max - inset * 0.5f;
+        if (gmax.x < gmin.x) gmax.x = gmin.x;
+        if (gmax.y < gmin.y) gmax.y = gmin.y;
+        Vector3 candidate = new Vector3(Random.Range(gmin.x, gmax.x), Random.Range(gmin.y, gmax.y), transform.position.z);
+        return candidate;
     }
 
     public bool IsPlaced => isPlaced;
