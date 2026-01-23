@@ -5,18 +5,24 @@ public class CameraController : MonoBehaviour
 {
     public float musicTempo = 128f;
     public bool slowMoActive = false;
+    [SerializeField] UIManager uiManager;
+    [SerializeField] AudioManager audioManager;
 
+    private void Awake()
+    {
+        uiManager = FindFirstObjectByType<UIManager>();
+        audioManager = FindFirstObjectByType<AudioManager>();
+    }
     public void StartSlowMo()
     {
         if (slowMoActive)
         {
             StopAllCoroutines();
         }
-        else
-        {
 
-            StartCoroutine(ActivateSlowMo());
-        }
+        uiManager.ShowSlowMoPanel(5.0f);
+        audioManager.StartAudioPitchShift(5.0f);
+        StartCoroutine(ActivateSlowMo());
     }
     public IEnumerator ActivateSlowMo()
     {

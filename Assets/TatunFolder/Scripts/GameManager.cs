@@ -20,11 +20,15 @@ public class GameManager : MonoBehaviour
     public int mushroomScore = 10;
 
     private int totalScore = 0;
-    private int typeAScore = 0;
-    private int typeBScore = 0;
 
     [Header("Level Settings")]
     public int currentLevel = 1;
+
+    [Header("PowerUps")]
+    [SerializeField] int maxPowerUps = 3;
+    [SerializeField] int powerUpSpawnInterval = 3; // levels
+    [SerializeField] GameObject powerUpPrefab;
+    [SerializeField] Transform powerUpParent;
 
     [Header("UI Manager")]
     public UIManager uiManager;
@@ -95,6 +99,8 @@ public class GameManager : MonoBehaviour
         spawners.AddRange(FindObjectsOfType<MushroomSpawner>());
         totalSpawners = spawners.Count;
         spawnersFinishedCount = 0;
+
+        CheckPowerUpStatus();
 
         // clear registry
         activeMushrooms.Clear();
@@ -184,6 +190,30 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void CheckPowerUpStatus()
+    {
+        // Spawn all 3 power ups at the start of game, set them spread evenly on screen
+        int existingPowerUps = powerUpParent.childCount;
+        if (currentLevel == 1)
+        {
+            for (int i = existingPowerUps; i < maxPowerUps; i++)
+            {
+                GameObject pu = Instantiate(powerUpPrefab, powerUpParent);
+                pu.transform.localPosition = new Vector3(i * 0.8f, 0, 0);
+            }
+        }
+        // Spawn one power up every 3 levels if under max
+        else if (currentLevel % powerUpSpawnInterval == 0)
+        {
+            if (existingPowerUps < maxPowerUps)
+            {
+                GameObject pu = Instantiate(powerUpPrefab, powerUpParent);
+                pu.transform.localPosition = new Vector3(existingPowerUps * 0.8f, 0, 0);
+            }
+        }
+
+    }
+
     private IEnumerator ProceedToNextLevel()
     {
         foreach (var spawner in spawners)
@@ -237,15 +267,6 @@ public class GameManager : MonoBehaviour
     public void OnCorrectMushroom(MushroomType type)
     {
         totalScore += mushroomScore;
-
-        if (type == MushroomType.TypeA)
-        {
-            typeAScore++;
-        }
-        else if (type == MushroomType.TypeB)
-        {
-            typeBScore++;
-        }
 
         UpdateUI();
     }
@@ -381,6 +402,7 @@ public class GameManager : MonoBehaviour
             s.spawnInterval *= 0.9f;
             s.maxMushroomsSpawned += 5;
         }
+        CheckPowerUpStatus();
 
         Debug.Log($"Proceeding to level {currentLevel}");
     }

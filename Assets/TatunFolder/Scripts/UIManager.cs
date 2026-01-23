@@ -19,11 +19,10 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI levelTransitionText;
     public float levelTransitionDuration = 2f;
 
-    [Header("Pause Panel")]
-    public GameObject pausePanel;
-    public Button resumeButton;
-    public Button pauseRestartButton;
-    public Button pauseMainMenuButton;
+    [Header("Slow Mo Panel")]
+    public GameObject slowMoPanel;
+    public Slider slowMoSlider;
+    public TextMeshProUGUI slowMoText;
 
     [Header("HUD")]
     public GameObject hudPanel;
@@ -43,15 +42,6 @@ public class UIManager : MonoBehaviour
         if (mainMenuButton != null)
             mainMenuButton.onClick.AddListener(LoadMainMenu);
 
-        if (resumeButton != null)
-            resumeButton.onClick.AddListener(ResumeGame);
-
-        if (pauseRestartButton != null)
-            pauseRestartButton.onClick.AddListener(RestartGame);
-
-        if (pauseMainMenuButton != null)
-            pauseMainMenuButton.onClick.AddListener(LoadMainMenu);
-
         // Hide all panels at start
         HideAllPanels();
     }
@@ -64,11 +54,48 @@ public class UIManager : MonoBehaviour
         if (levelTransitionPanel != null)
             levelTransitionPanel.SetActive(false);
 
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
         if (hudPanel != null)
             hudPanel.SetActive(true);
+    }
+
+    public void ShowSlowMoPanel(float duration)
+    {
+        if (slowMoPanel != null && slowMoSlider != null)
+        {
+            slowMoPanel.SetActive(true);
+            StartCoroutine(UpdateSlowMoSlider(duration));
+        }
+    }
+
+    private IEnumerator UpdateSlowMoSlider(float duration)
+    {
+        slowMoSlider.value = 100f;
+        float elapsed = 0f;
+        float initialValue = slowMoSlider.value;
+        float targetValue = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            slowMoSlider.value = Mathf.Lerp(initialValue, targetValue, elapsed / duration);
+            // treble the text and fade it out
+            if (slowMoText != null)
+            {
+                if (elapsed < duration / 2f)
+                {
+                    float t = elapsed / (duration / 5f);
+                    slowMoText.fontSize = Mathf.Lerp(15f, 72f, t);
+                    slowMoText.color = new Color(slowMoText.color.r, slowMoText.color.g, slowMoText.color.b, Mathf.Lerp(1f, 0f, t));
+                }
+                else
+                {
+                    slowMoText.fontSize = 72f;
+                    slowMoText.color = new Color(slowMoText.color.r, slowMoText.color.g, slowMoText.color.b, 0f);
+                }
+            }
+            yield return null;
+        }
+        slowMoSlider.value = 0f;
+        slowMoPanel.SetActive(false);
     }
 
     public void ShowGameOver(int finalScore, int highScore, int levelReached)
@@ -135,32 +162,6 @@ public class UIManager : MonoBehaviour
             }
 
             levelTransitionPanel.SetActive(false);
-        }
-    }
-
-    public void ShowPauseMenu()
-    {
-        if (pausePanel != null)
-        {
-            pausePanel.SetActive(true);
-            Time.timeScale = 0f;
-            isPaused = true;
-
-            if (hudPanel != null)
-                hudPanel.SetActive(false);
-        }
-    }
-
-    public void ResumeGame()
-    {
-        if (pausePanel != null)
-        {
-            pausePanel.SetActive(false);
-            Time.timeScale = 1f;
-            isPaused = false;
-
-            if (hudPanel != null)
-                hudPanel.SetActive(true);
         }
     }
 

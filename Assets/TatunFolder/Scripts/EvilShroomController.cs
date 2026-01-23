@@ -35,6 +35,7 @@ public class EvilShroomController : MonoBehaviour
     public LayerMask touchableLayer;
 
     private CameraController cameraController;
+    public SpriteRenderer[] spriteRenderers;
     private Camera mainCamera;
     private Rigidbody2D rb;
     private Animator animator;
@@ -81,6 +82,8 @@ public class EvilShroomController : MonoBehaviour
 
         lifeTimer = lifeTimeSeconds;
 
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+
         mainCamera = Camera.main;
         cameraController = mainCamera.GetComponent<CameraController>();
 
@@ -97,6 +100,22 @@ public class EvilShroomController : MonoBehaviour
 
     private void Update()
     {
+        // When lifetime is running out, make mushroom flash
+        if (lifeTimer <= 2f)
+        {
+            float flashSpeed = 20f;
+            float alpha = Mathf.Abs(Mathf.Sin(Time.time * flashSpeed));
+            foreach (var sr in spriteRenderers)
+            {
+                if (sr != null)
+                {
+                    Color c = sr.color;
+                    c.a = alpha;
+                    sr.color = c;
+                }
+            }
+        }
+
         // Movement while not flicked and not dragging
         if (!isDragging && !hasBeenFlicked && isMoving)
         {

@@ -381,7 +381,7 @@ MonoBehaviour:
   erraticSpeedMultiplier: 1.5
   zigzagFrequency: 2
   zigzagAmplitude: 5
-  lifeTimeSeconds: 8
+  lifeTimeSeconds: 10
   flickVelocityThreshold: 10
   flickForceMultiplier: 0.5
   offscreenMargin: 0.02
@@ -392,3 +392,4 @@ MonoBehaviour:
   touchableLayer:
     serializedVersion: 2
     m_Bits: 256
+  spriteRenderers: []

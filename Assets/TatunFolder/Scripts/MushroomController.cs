@@ -121,6 +121,22 @@ public class MushroomController : MonoBehaviour
 
     void Update()
     {
+        // When lifetime is running out, make mushroom flash
+        if (!isPlaced && lifeTimer <= 2f)
+        {
+            float flashSpeed = 20f;
+            float alpha = Mathf.Abs(Mathf.Sin(Time.time * flashSpeed));
+            foreach (var sr in spriteRenderers)
+            {
+                if (sr != null)
+                {
+                    Color c = sr.color;
+                    c.a = alpha;
+                    sr.color = c;
+                }
+            }
+        }
+
         // Update life indicator and place at lifeIndicatorTransform
         if (lifeIndicatorTransform != null && lifeIndicators != null && lifeIndicators.Length > 0)
         {
