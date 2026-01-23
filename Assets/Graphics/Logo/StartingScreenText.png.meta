@@ -1,0 +1,507 @@
+fileFormatVersion: 2
+guid: 5323e09ca1167304e8645ba957320717
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3563360368942874600
+    second: StartingScreenText_0
+  - first:
+      213: -7085827190089282460
+    second: StartingScreenText_1
+  - first:
+      213: 8939479122974193236
+    second: StartingScreenText_2
+  - first:
+      213: 3193349738401279081
+    second: StartingScreenText_3
+  - first:
+      213: -5066523520017351813
+    second: StartingScreenText_4
+  - first:
+      213: -2665094204475961016
+    second: StartingScreenText_5
+  - first:
+      213: -2388369968139060621
+    second: StartingScreenText_6
+  - first:
+      213: -1293461967398506962
+    second: StartingScreenText_7
+  - first:
+      213: -2652206714198680826
+    second: StartingScreenText_8
+  - first:
+      213: 2085371940655986536
+    second: StartingScreenText_9
+  - first:
+      213: -6204917516726969175
+    second: StartingScreenText_10
+  - first:
+      213: -844048871664243364
+    second: StartingScreenText_11
+  - first:
+      213: 2457489292103458451
+    second: StartingScreenText_12
+  - first:
+      213: 8720370763104706198
+    second: StartingScreenText_13
+  - first:
+      213: -1633818675610341948
+    second: StartingScreenText_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: StartingScreenText_0
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 218
+        width: 107
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 810847abf966c8ec0800000000000000
+      internalID: -3563360368942874600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_1
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 218
+        width: 127
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46c8ce286b51aad90800000000000000
+      internalID: -7085827190089282460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_2
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 218
+        width: 107
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 456b5e126e86f0c70800000000000000
+      internalID: 8939479122974193236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_3
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 218
+        width: 75
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96caef00bae015c20800000000000000
+      internalID: 3193349738401279081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_4
+      rect:
+        serializedVersion: 2
+        x: 483
+        y: 218
+        width: 117
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7b343fb3b710b9b0800000000000000
+      internalID: -5066523520017351813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_5
+      rect:
+        serializedVersion: 2
+        x: 609
+        y: 218
+        width: 117
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8411249f0fea30bd0800000000000000
+      internalID: -2665094204475961016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_6
+      rect:
+        serializedVersion: 2
+        x: 735
+        y: 218
+        width: 55
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37a3cd80b2ecaded0800000000000000
+      internalID: -2388369968139060621
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_7
+      rect:
+        serializedVersion: 2
+        x: 798
+        y: 218
+        width: 127
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e2eebb69133bc0ee0800000000000000
+      internalID: -1293461967398506962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_8
+      rect:
+        serializedVersion: 2
+        x: 934
+        y: 218
+        width: 117
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60b1841ab08713bd0800000000000000
+      internalID: -2652206714198680826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_9
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 29
+        width: 107
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 867fd533bbab0fc10800000000000000
+      internalID: 2085371940655986536
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_10
+      rect:
+        serializedVersion: 2
+        x: 516
+        y: 29
+        width: 107
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9acd3e2c464b3e9a0800000000000000
+      internalID: -6204917516726969175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_11
+      rect:
+        serializedVersion: 2
+        x: 631
+        y: 29
+        width: 117
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5d226fe5065944f0800000000000000
+      internalID: -844048871664243364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_12
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 29
+        width: 117
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39e1727ad71ca1220800000000000000
+      internalID: 2457489292103458451
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_13
+      rect:
+        serializedVersion: 2
+        x: 882
+        y: 29
+        width: 107
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69ede8ca10bf40970800000000000000
+      internalID: 8720370763104706198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: StartingScreenText_14
+      rect:
+        serializedVersion: 2
+        x: 997
+        y: 29
+        width: 107
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cda8d422928359e0800000000000000
+      internalID: -1633818675610341948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      StartingScreenText_0: -3563360368942874600
+      StartingScreenText_1: -7085827190089282460
+      StartingScreenText_10: -6204917516726969175
+      StartingScreenText_11: -844048871664243364
+      StartingScreenText_12: 2457489292103458451
+      StartingScreenText_13: 8720370763104706198
+      StartingScreenText_14: -1633818675610341948
+      StartingScreenText_2: 8939479122974193236
+      StartingScreenText_3: 3193349738401279081
+      StartingScreenText_4: -5066523520017351813
+      StartingScreenText_5: -2665094204475961016
+      StartingScreenText_6: -2388369968139060621
+      StartingScreenText_7: -1293461967398506962
+      StartingScreenText_8: -2652206714198680826
+      StartingScreenText_9: 2085371940655986536
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
