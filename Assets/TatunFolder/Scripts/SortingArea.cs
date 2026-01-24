@@ -97,6 +97,7 @@ public class SortingArea : MonoBehaviour
             hoveredMushroom.PlaceInArea(this);
             placedMushrooms.Add(hoveredMushroom);
             onCorrectMushroom?.Invoke(acceptedType);
+            SFXManager.Instance.PlayCorrectSound();
 
             int pts = 20;
 
@@ -167,6 +168,8 @@ public class SortingArea : MonoBehaviour
             if (hasPopupManager && m != null && m.gameObject != null)
             {
                 ScorePopupManager.Instance.ShowAtWorldPosition(m.transform.position, "-10", popupNegativeColor, popupRiseDistance, popupDuration);
+                SFXManager.Instance.PlayPopSound();
+                SFXManager.Instance.PlayRandomDeathScream();
             }
 
             if (anim != null)

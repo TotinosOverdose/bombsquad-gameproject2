@@ -18,7 +18,6 @@ public class MushroomSpawner : MonoBehaviour
     [Header("Game Settings")]
     public int maxMushroomsSpawned = 15; // interpreted as total number this spawner will create for the level
 
-    // Runtime
     private Camera mainCamera;
     private int currentMushroomCount = 0; // active from this spawner
     private int spawnedCount = 0;

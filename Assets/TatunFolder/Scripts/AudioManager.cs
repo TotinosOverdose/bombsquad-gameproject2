@@ -22,6 +22,7 @@ public class AudioManager : MonoBehaviour
     private void Start()
     {
         PlayThemeSong();
+        StopAudioPitchShift();
     }
 
     void PlayThemeSong()
@@ -79,4 +80,5 @@ public class AudioManager : MonoBehaviour
         if (m_Source != null)
             m_Source.pitch = basePitch;
     }
+
 }

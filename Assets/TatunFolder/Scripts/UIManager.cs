@@ -29,11 +29,13 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI points;
 
     private GameManager gameManager;
+    private AudioManager audioManager;
     private bool isPaused = false;
 
     private void Awake()
     {
         gameManager = FindFirstObjectByType<GameManager>();
+        audioManager = FindFirstObjectByType<AudioManager>();
 
         // Setup button listeners
         if (restartButton != null)

@@ -44,6 +44,7 @@ public class MushroomController : MonoBehaviour
     private Vector2 moveDirection;
     private bool isMoving = false;
     private bool isDragging = false;
+    private bool tickingStarted = false;
     private Coroutine moveRoutine;
 
     private Camera mainCamera;
@@ -122,6 +123,16 @@ public class MushroomController : MonoBehaviour
     void Update()
     {
         // When lifetime is running out, make mushroom flash
+        if (!isPlaced && !tickingStarted && lifeTimer <= 2f)
+        {
+            if (SFXManager.Instance != null)
+            {
+                SFXManager.Instance.PlayTickingSound(2f);
+                tickingStarted = true;
+            }
+        }
+
+        // When lifetime is running out show flashing
         if (!isPlaced && lifeTimer <= 2f)
         {
             float flashSpeed = 20f;
@@ -182,7 +193,7 @@ public class MushroomController : MonoBehaviour
             {
                 KeepInsideScreenBounds();
             }
-            
+
         }
 
         // Lifetime countdown when not placed
@@ -304,6 +315,8 @@ public class MushroomController : MonoBehaviour
         isDragging = true;
         isMoving = false;
 
+        SFXManager.Instance.PlayPickUpSound();
+
         dragOffset = transform.position - inputWorldPos;
     }
 
@@ -322,6 +335,7 @@ public class MushroomController : MonoBehaviour
     {
         isDragging = false;
         activeTouchId = -1;
+        SFXManager.Instance.PlayPutDownSound();
     }
 
     private Vector3 GetInputWorldPosition()

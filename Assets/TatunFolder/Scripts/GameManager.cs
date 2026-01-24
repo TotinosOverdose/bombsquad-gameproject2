@@ -285,6 +285,7 @@ public class GameManager : MonoBehaviour
     {
         if (gameIsOver) yield break;
         gameIsOver = true;
+        SFXManager.Instance.ExplodeAndScream();
 
         foreach (var spawner in spawners)
         {
@@ -313,6 +314,7 @@ public class GameManager : MonoBehaviour
             int highScore = SaveManager.Instance != null ? SaveManager.Instance.GetHighScore() : 0;
             uiManager.ShowGameOver(totalScore, highScore, currentLevel);
         }
+        SFXManager.Instance.StopAllSFX();
 
         yield return null;
     }

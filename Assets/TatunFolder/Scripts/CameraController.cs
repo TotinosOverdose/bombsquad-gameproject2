@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -8,6 +9,13 @@ public class CameraController : MonoBehaviour
     [SerializeField] UIManager uiManager;
     [SerializeField] AudioManager audioManager;
 
+    // Store refs for reset state
+    private Coroutine slowMoZoomRoutine;
+    private Vector3 storedCameraPosition;
+    private float storedOrthoSize = 5f;
+    private float storedTimeScale = 1f;
+    private float storedFixedDelta = 0.02f;
+
     private void Awake()
     {
         uiManager = FindFirstObjectByType<UIManager>();
@@ -15,15 +23,49 @@ public class CameraController : MonoBehaviour
     }
     public void StartSlowMo()
     {
-        if (slowMoActive)
+        if (slowMoZoomRoutine != null)
         {
-            StopAllCoroutines();
+            StopCoroutine(slowMoZoomRoutine);
+            slowMoZoomRoutine = null;
+            RestoreCameraImmediate();
         }
 
         uiManager.ShowSlowMoPanel(5.0f);
         audioManager.StartAudioPitchShift(5.0f);
         StartCoroutine(ActivateSlowMo());
     }
+
+
+    public Coroutine StartSlowMoAndZoom(Transform targetTransform, float duration, float zoomAmount, float slowFactor = 0.2f)
+    {
+        // If another zoom coroutine is running, stop it and restore immediately before starting a new one.
+        if (slowMoZoomRoutine != null)
+        {
+            StopCoroutine(slowMoZoomRoutine);
+            slowMoZoomRoutine = null;
+            RestoreCameraImmediate();
+        }
+
+        slowMoZoomRoutine = StartCoroutine(SlowMoAndZoomInternal(targetTransform, duration, zoomAmount, slowFactor));
+        return slowMoZoomRoutine;
+    }
+
+
+    private void RestoreCameraImmediate()
+    {
+        // restore timescale and fixed delta
+        Time.timeScale = storedTimeScale;
+        Time.fixedDeltaTime = storedFixedDelta;
+
+        // restore camera transform and size
+        transform.position = storedCameraPosition;
+        if (Camera.main != null)
+            Camera.main.orthographicSize = storedOrthoSize;
+
+        slowMoActive = false;
+    }
+
+
     public IEnumerator ActivateSlowMo()
     {
         slowMoActive = true;
@@ -43,27 +85,28 @@ public class CameraController : MonoBehaviour
         slowMoActive = false;
     }
 
-    public IEnumerator SlowMoAndZoom(Transform targetTransform, float duration, float zoomAmount, float slowFactor = 0.2f)
+    private IEnumerator SlowMoAndZoomInternal(Transform targetTransform, float duration, float zoomAmount, float slowFactor = 0.2f)
     {
-
         slowMoActive = true;
         // clamp values
         slowFactor = Mathf.Clamp(slowFactor, 0.01f, 1f);
         duration = Mathf.Max(0.01f, duration);
         zoomAmount = Mathf.Max(0f, zoomAmount);
 
-        // remember originals
-        float originalTimeScale = Time.timeScale;
-        float originalFixedDelta = Time.fixedDeltaTime;
-        Vector3 initialPosition = transform.position;
-        Vector3 lastKnownTarget = targetTransform.position;
-        Vector3 initialSizeRef = new Vector3(0f, 0f, Camera.main.orthographicSize); // store initial size
-        float initialSize = initialSizeRef.z;
+        // remember originals (also store to instance fields for external restore)
+        storedTimeScale = Time.timeScale;
+        storedFixedDelta = Time.fixedDeltaTime;
+        storedCameraPosition = transform.position;
+        storedOrthoSize = Camera.main != null ? Camera.main.orthographicSize : storedOrthoSize;
+
+        Vector3 initialPosition = storedCameraPosition;
+        Vector3 lastKnownTarget = (targetTransform != null) ? targetTransform.position : initialPosition;
+        float initialSize = storedOrthoSize;
         float targetSize = Mathf.Max(0.01f, initialSize - zoomAmount);
 
         // enter slow-mo
         Time.timeScale = slowFactor;
-        Time.fixedDeltaTime = originalFixedDelta * Time.timeScale;
+        Time.fixedDeltaTime = storedFixedDelta * Time.timeScale;
 
         // animate toward target using unscaled time so animation runs independent of timescale
         float elapsed = 0f;
@@ -78,7 +121,8 @@ public class CameraController : MonoBehaviour
 
             Vector3 desiredPos = Vector3.Lerp(initialPosition, lastKnownTarget, t);
             transform.position = desiredPos;
-            Camera.main.orthographicSize = Mathf.Lerp(initialSize, targetSize, t);
+            if (Camera.main != null)
+                Camera.main.orthographicSize = Mathf.Lerp(initialSize, targetSize, t);
 
             yield return null;
         }
@@ -90,20 +134,24 @@ public class CameraController : MonoBehaviour
         float restoreDuration = Mathf.Clamp(duration * 0.5f, 0.12f, 0.6f);
         float elapsed2 = 0f;
         Vector3 currentPosAtPeak = transform.position;
-        float currentSizeAtPeak = Camera.main.orthographicSize;
+        float currentSizeAtPeak = Camera.main != null ? Camera.main.orthographicSize : initialSize;
         while (elapsed2 < restoreDuration)
         {
             elapsed2 += Time.unscaledDeltaTime;
             float t2 = Mathf.Clamp01(elapsed2 / restoreDuration);
             transform.position = Vector3.Lerp(currentPosAtPeak, initialPosition, t2);
-            Camera.main.orthographicSize = Mathf.Lerp(currentSizeAtPeak, initialSize, t2);
+            if (Camera.main != null)
+                Camera.main.orthographicSize = Mathf.Lerp(currentSizeAtPeak, initialSize, t2);
             yield return null;
         }
 
         // restore timescale and fixed delta
-        Time.timeScale = originalTimeScale;
-        Time.fixedDeltaTime = originalFixedDelta;
+        Time.timeScale = storedTimeScale;
+        Time.fixedDeltaTime = storedFixedDelta;
         slowMoActive = false;
+
+        // clear routine handle
+        slowMoZoomRoutine = null;
     }
 
     private void Update()

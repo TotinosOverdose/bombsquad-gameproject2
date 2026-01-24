@@ -44,6 +44,7 @@ public class EvilShroomController : MonoBehaviour
     private Coroutine moveRoutine;
     private float lifeTimer;
     private bool hasBeenFlicked = false;
+    private bool tickingStarted = false;
 
     // Drag / flick tracking (single pointer fallback)
     private bool isDragging = false;
@@ -100,7 +101,18 @@ public class EvilShroomController : MonoBehaviour
 
     private void Update()
     {
-        // When lifetime is running out, make mushroom flash
+        // When lifetime is running out, make mushroom flash and play ticking sound every flash
+        if (!tickingStarted && lifeTimer <= 2f)
+        {
+            // start looping ticking sound (unaffected by timescale)
+            if (SFXManager.Instance != null)
+            {
+                SFXManager.Instance.PlayTickingSound(2f);
+                tickingStarted = true;
+            }
+        }
+
+        // When lifetime is running out, make mushroom flash and play ticking sound every flash
         if (lifeTimer <= 2f)
         {
             float flashSpeed = 20f;
@@ -163,6 +175,8 @@ public class EvilShroomController : MonoBehaviour
             if (lifeTimer <= 0f)
             {
                 StartCoroutine(ExplodeAndEndGame());
+                SFXManager.Instance.PlayPopSound();
+                SFXManager.Instance.PlayRandomDeathScream();
             }
         }
 
@@ -264,6 +278,7 @@ public class EvilShroomController : MonoBehaviour
     {
         activeTouchId = id;
         isDragging = true;
+        SFXManager.Instance.PlayPickUpSound();
         // Stop wandering while dragging
         if (moveRoutine != null)
         {
@@ -312,6 +327,8 @@ public class EvilShroomController : MonoBehaviour
         if (releaseVelocity.magnitude >= flickVelocityThreshold)
         {
             hasBeenFlicked = true;
+            SFXManager.Instance.PlayThrowSound();
+            SFXManager.Instance.PlayYeetSound();
             animator.SetTrigger("Shocked");
             Vector3 spawnPos = transform.position;
             int pts = 10;
@@ -330,13 +347,16 @@ public class EvilShroomController : MonoBehaviour
             if (col != null) col.enabled = false;
             if (cameraController.slowMoActive == false)
             {
-                cameraController.StartCoroutine(cameraController.SlowMoAndZoom(transform, 0.5f, 1.5f, 0.18f));
+                // Use the CameraController's public starter so CameraController can manage/track its coroutine.
+                cameraController.StartSlowMoAndZoom(transform, 0.5f, 1.5f, 0.18f);
             }
 
         }
         else
         {
             // not a strong flick — resume wandering
+
+            SFXManager.Instance.PlayPutDownSound();
             if (moveRoutine == null)
                 moveRoutine = StartCoroutine(MovementRoutine());
         }
