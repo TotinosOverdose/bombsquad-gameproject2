@@ -251,7 +251,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: I wonder what these clocks do...
+  m_text: Get a slow mo power up using the clock!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e1bea9425d70a2a418c62d226887944f, type: 2}
   m_sharedMaterial: {fileID: -3004551427932850165, guid: e1bea9425d70a2a418c62d226887944f, type: 2}
@@ -467,7 +467,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: These Guys need to be flicked off!
+  m_text: Throw these guys out!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e1bea9425d70a2a418c62d226887944f, type: 2}
   m_sharedMaterial: {fileID: -3004551427932850165, guid: e1bea9425d70a2a418c62d226887944f, type: 2}
