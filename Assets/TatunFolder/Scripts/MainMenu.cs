@@ -11,7 +11,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] Button developersButton;
 
     [SerializeField] GameObject mainMenuPanel;
-    [SerializeField] GameObject developersPanel;
+    [SerializeField] GameObject developersBG;
+    [SerializeField] GameObject mainMenuBG;
     [SerializeField] bool devPanelShow = false;
 
     private void Awake()
@@ -48,7 +49,8 @@ public class MainMenu : MonoBehaviour
         {
             devPanelShow = true;
             mainMenuPanel.SetActive(false);
-            developersPanel.SetActive(true);
+            mainMenuBG.SetActive(false);
+            developersBG.SetActive(true);
             return;
         }
     }
@@ -59,8 +61,6 @@ public class MainMenu : MonoBehaviour
         if (!devPanelShow) return;
 
         bool pressed = false;
-
-        // Enhanced Touch (multi-touch aware)
         var touches = Touch.activeTouches;
         if (touches.Count > 0)
         {
@@ -81,8 +81,9 @@ public class MainMenu : MonoBehaviour
         if (pressed)
         {
             devPanelShow = false;
-            if (developersPanel != null) developersPanel.SetActive(false);
+            if (developersBG != null) developersBG.SetActive(false);
             if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+            if (mainMenuBG != null) mainMenuBG.SetActive(true);
         }
     }
 }
